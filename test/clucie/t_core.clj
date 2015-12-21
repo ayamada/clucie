@@ -12,7 +12,7 @@
 
 ;;; TODO: Add more data and tests
 (def all-entries
-  [["1" "20130819"] ; NB: this entry is like #3
+  [["1" "20130819"] ; NB: this entry is like #3 (match both)
    ["2" "佐藤先生"]
    ["3" "実験済み(20140723)"] ; NB: this entry is like #1
    ])
@@ -64,10 +64,6 @@
                max-num
                entry-analyzer))
 
-(defn- =count? [n]
-  (fn [l]
-    (= n (count l))))
-
 (defn- prepare-store! []
   (let [store (store/memory-store)]
     (reset! test-store store)
@@ -76,61 +72,56 @@
 (defn- reset-store! []
   (reset! test-store nil))
 
+(defn- results-is-valid? [quantity & [entry-key]]
+  (if (or (zero? quantity) (not entry-key))
+    #(= quantity (count %))
+    (fn [results]
+      (and
+        (= quantity (count results))
+        (boolean (first (filter #(= entry-key (:key %))
+                                results)))))))
+
 ;;; TODO: Add test to check :ascii-name
 ;;; TODO: Add more tests
 
 (with-state-changes [(before :facts (prepare-store!))
                      (after :facts (reset-store!))]
-  (facts "add new entries"
-    ;; TODO
-    ))
+  (facts "add new entries and search entries"
+    (fact "search exists entries"
+      (search-entries "2013" 10) => (results-is-valid? 2 (first entry1))
+      (search-entries "佐藤" 10) => (results-is-valid? 1 (first entry2)))
+    (fact "search new entries"
+      (let [entry-key "4"
+            entry-doc "テスト"]
+        (search-entries entry-doc 10) => (results-is-valid? 0)
+        (add-entry! entry-key entry-doc) => nil
+        (search-entries entry-doc 10) => (results-is-valid? 1 entry-key)))))
 
 (with-state-changes [(before :facts (prepare-store!))
                      (after :facts (reset-store!))]
-  ;; TODO: Refine this test
-  (facts "search entries"
-    (search-entries "2013" 10)
-    => (fn [result]
-         (and (= 2 (count result)) ;; NB: It's better to be 1
-              (= (first entry1)
-                 (-> result
-                     first
-                     :key))))
-    (search-entries "佐藤" 10)
-    => (fn [result]
-         (and (= 1 (count result))
-              (= (first entry2)
-                 (-> result
-                     first
-                     :key))))))
-
-(with-state-changes [(before :facts (prepare-store!))
-                     (after :facts (reset-store!))]
-  ;; TODO: Refine this test
   (facts "update entry document"
-    (update-entry! (first entry1) "20150101") => nil
-    (search-entries "20150101" 10)
-    => (fn [result]
-         (and (= 2 (count result)) ;; NB: It's better to be 1
-              (= (first entry1)
-                 (-> result
-                     first
-                     :key))))))
+    (let [entry-key (first entry1)
+          new-entry-doc "新しい日本語テキスト"]
+      (search-entries "20130819" 10) => (results-is-valid? 2 entry-key)
+      (search-entries new-entry-doc 10) => (results-is-valid? 0)
+      (update-entry! entry-key new-entry-doc) => nil
+      (search-entries "20130819" 10) => (results-is-valid? 1)
+      (search-entries new-entry-doc 10) => (results-is-valid? 1 entry-key))))
 
 (with-state-changes [(before :facts (prepare-store!))
                      (after :facts (reset-store!))]
   (facts "delete entry"
     (fact "entry1"
-      (search-entries (second entry1) 10) => (=count? 2)
+      (search-entries (second entry1) 10) => (results-is-valid? 2)
       (delete-entry! (first entry1)) => nil
-      (search-entries (second entry1) 10) => (=count? 1))
+      (search-entries (second entry1) 10) => (results-is-valid? 1))
     (fact "entry2"
-      (search-entries (second entry2) 10) => (=count? 1)
+      (search-entries (second entry2) 10) => (results-is-valid? 1)
       (delete-entry! (first entry2)) => nil
-      (search-entries (second entry2) 10) => (=count? 0))
+      (search-entries (second entry2) 10) => (results-is-valid? 0))
     (fact "entry3"
-      (search-entries (second entry3) 10) => (=count? 2)
+      (search-entries (second entry3) 10) => (results-is-valid? 2)
       (delete-entry! (first entry3)) => nil
-      (search-entries (second entry3) 10) => (=count? 1)
+      (search-entries (second entry3) 10) => (results-is-valid? 1)
       (delete-entry! (first entry1)) => nil
-      (search-entries (second entry3) 10) => (=count? 0))))
+      (search-entries (second entry3) 10) => (results-is-valid? 0))))
