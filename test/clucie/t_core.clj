@@ -8,9 +8,7 @@
             [clucie.analysis :as analysis]
             [clucie.store :as store])
   (:import [java.util UUID]
-           [java.io File StringReader]
-           [org.apache.lucene.analysis.tokenattributes OffsetAttribute]
-           ))
+           [java.io File]))
 
 (def test-store (atom nil))
 
