@@ -117,7 +117,9 @@
   (facts "add new entries and search entries"
     (fact "search exists entries"
       (search-entries "2013" 10) => (results-is-valid? 2 (first entry1))
-      (search-entries "佐藤" 10) => (results-is-valid? 1 (first entry2)))
+      (search-entries "佐藤" 10) => (results-is-valid? 1 (first entry2))
+      (search-entries "藤先" 10) => (results-is-valid? 1 (first entry2))
+      (search-entries "先生" 10) => (results-is-valid? 1 (first entry2)))
     (fact "search new entries"
       (let [entry-key "9999"
             entry-doc "テスト"]
@@ -177,16 +179,21 @@
           nil) => nil
         (search-entries new-doc 10) => (results-is-valid? 1 new-key)))))
 
-(with-state-changes [(before :facts (prepare-store!))
-                     (after :facts (finish-store!))]
-  (facts "kuromoji"
-    (fact "kuromoji tokenizer"
-      (doseq [doc (map second all-entries)]
-        (prn (analysis/kuromoji-tokenize doc)))
-        ;; TODO: wip
-        )
-    (fact "kuromoji tokenizer"
-      (let [analyzer (analysis/kuromoji-analyzer)]
-        ;; TODO: wip
-        ))))
+(facts "kuromoji tokenizer"
+  ;; (doseq [doc (map second all-entries)]
+  ;;   (prn (analysis/kuromoji-tokenize doc)))
+  (let [text "牛焼肉定食"
+        result ["牛" "焼肉" "定食"]]
+    (analysis/kuromoji-tokenize text) => result))
 
+(binding [entry-analyzer (analysis/analyzer-mapping
+                           (analysis/keyword-analyzer)
+                           {:doc (analysis/kuromoji-analyzer)
+                            :ascii-name (analysis/ngram-analyzer 2 8 [])})]
+  (with-state-changes [(before :facts (prepare-store!))
+                       (after :facts (finish-store!))]
+    (fact "kuromoji analyzer"
+      (search-entries "2013" 10) => (results-is-valid? 2 (first entry1))
+      (search-entries "佐藤" 10) => (results-is-valid? 1 (first entry2))
+      (search-entries "藤先" 10) => (results-is-valid? 0)
+      (search-entries "先生" 10) => (results-is-valid? 1 (first entry2)))))

@@ -71,6 +71,7 @@
     mode
     JapaneseTokenizer$Mode/NORMAL))
 
+;;; TODO: Support to many tokenize options
 (defn- tokenize [^Tokenizer tokenizer text]
   (.setReader tokenizer (StringReader. text))
   (let [offset-attr (.addAttribute tokenizer OffsetAttribute)]
@@ -105,8 +106,8 @@
           mode (kuromoji-mode mode)]
       (JapaneseTokenizer. user-dictionary discard-puctuation? mode))))
 
-(defn kuromoji-tokenize [text & tokenizer-options]
-  (let [t (apply kuromoji-tokenizer tokenizer-options)]
+(defn kuromoji-tokenize [text & tokenizer-args]
+  (let [t (apply kuromoji-tokenizer tokenizer-args)]
     (tokenize t text)))
 
 (defn analyzer-mapping
