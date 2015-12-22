@@ -9,8 +9,7 @@
             [clucie.store :as store])
   (:import [java.util UUID]
            [java.io File]
-           [org.apache.lucene.store NIOFSDirectory Directory]
-           ))
+           [org.apache.lucene.store NIOFSDirectory Directory]))
 
 (def test-store (atom nil))
 
