@@ -89,8 +89,10 @@
       (JapaneseTokenizer. user-dict discard-puctuation? mode))))
 
 (defn kuromoji-tokenize [text & tokenizer-args]
-  (let [t (apply kuromoji-tokenizer tokenizer-args)]
-    (tokenize t text)))
+  (let [^Tokenizer t (apply kuromoji-tokenizer tokenizer-args)
+        r (tokenize t text)]
+    (.close t)
+    r))
 
 (defn analyzer-mapping
   ^Analyzer
