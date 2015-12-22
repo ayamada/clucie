@@ -85,26 +85,12 @@
           (.end tokenizer)
           (reverse results))))))
 
-(defn- kuromoji-tokenizer
-  "Usage:
-  (kuromoji-tokenizer factory user-dict discard-puctuation? mode)
-  (kuromoji-tokenizer user-dict discard-puctuation? mode)
-  (kuromoji-tokenizer user-dict discard-puctuation?)
-  (kuromoji-tokenizer user-dict)
-  (kuromoji-tokenizer)
-
-  `user-dict` can be nil.
-  `mode` can be :extend :normal :search"
-  [& args]
-  (if (= 4 (count args))
-    (let [[factory user-dictionary discard-puctuation? mode] args
-          discard-puctuation? (boolean discard-puctuation?)
-          mode (kuromoji-mode mode)]
-      (JapaneseTokenizer. factory user-dictionary discard-puctuation? mode))
-    (let [[user-dictionary discard-puctuation? mode] args
-          discard-puctuation? (boolean discard-puctuation?)
-          mode (kuromoji-mode mode)]
-      (JapaneseTokenizer. user-dictionary discard-puctuation? mode))))
+(defn- kuromoji-tokenizer [& [user-dict discard-puctuation? mode factory]]
+  (let [discard-puctuation? (boolean discard-puctuation?)
+        mode (kuromoji-mode mode)]
+    (if factory
+      (JapaneseTokenizer. factory user-dict discard-puctuation? mode)
+      (JapaneseTokenizer. user-dict discard-puctuation? mode))))
 
 (defn kuromoji-tokenize [text & tokenizer-args]
   (let [t (apply kuromoji-tokenizer tokenizer-args)]
