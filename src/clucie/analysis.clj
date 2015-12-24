@@ -53,12 +53,6 @@
   (^Analyzer [stop-words]
    (CJKAnalyzer. (char-set stop-words))))
 
-(defn kuromoji-analyzer
-  (^Analyzer []
-   (JapaneseAnalyzer.))
-  (^Analyzer [user-dict mode stop-words stop-tags]
-   (JapaneseAnalyzer. user-dict mode stop-words stop-tags)))
-
 (defn- kuromoji-mode [mode]
   (or
     ({:extended JapaneseTokenizer$Mode/EXTENDED
@@ -66,6 +60,13 @@
       :search JapaneseTokenizer$Mode/SEARCH} mode)
     mode
     JapaneseTokenizer$Mode/NORMAL))
+
+(defn kuromoji-analyzer
+  (^Analyzer []
+   (JapaneseAnalyzer.))
+  (^Analyzer [user-dict mode stop-words stop-tags]
+   (let [mode (kuromoji-mode mode)]
+     (JapaneseAnalyzer. user-dict mode stop-words stop-tags))))
 
 ;;; TODO: Support to many tokenize options
 (defn- tokenize [^Tokenizer tokenizer ^String text]
