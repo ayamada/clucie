@@ -15,6 +15,7 @@
     :else {:value (str v) :value-type :unknown}))
 
 (defn- stringify-value
+  ^String
   [v]
   (cond
     (string? v) v
