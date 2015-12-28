@@ -82,12 +82,12 @@
           (.end tokenizer)
           (reverse results))))))
 
-(defn- kuromoji-tokenizer [& [user-dict discard-puctuation? mode factory]]
-  (let [discard-puctuation? (boolean discard-puctuation?)
+(defn- kuromoji-tokenizer [& [user-dict discard-punctuation? mode factory]]
+  (let [discard-punctuation? (boolean discard-punctuation?)
         mode (kuromoji-mode mode)]
     (if factory
-      (JapaneseTokenizer. factory user-dict discard-puctuation? mode)
-      (JapaneseTokenizer. user-dict discard-puctuation? mode))))
+      (JapaneseTokenizer. factory user-dict discard-punctuation? mode)
+      (JapaneseTokenizer. user-dict discard-punctuation? mode))))
 
 (defn kuromoji-tokenize [text & tokenizer-args]
   (let [^Tokenizer t (apply kuromoji-tokenizer tokenizer-args)

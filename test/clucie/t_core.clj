@@ -297,10 +297,20 @@
           result ["牛" "焼肉" "定食"]]
       (analysis/kuromoji-tokenize text) => result))
   (fact "kuromoji tokenize with factory"
-    (let [text "ギュウヤキニク、牛焼肉定食です。"
-          result ["ギ" "ュ" "ウ" "ヤ" "キ" "ニ" "ク" "牛" "焼肉" "定食" "です"]
+    (let [text "ヨシノヤ、吉野家です。"
+          result1 ["ヨシノヤ" "、" "吉野家" "です" "。"]
+          result2 ["ヨ" "シ" "ノ" "ヤ" "、" "吉野" "家" "です" "。"]
+          result3 ["ヨシノヤ" "、" "吉野" "吉野家" "家" "です" "。"]
+          result4 ["ヨシノヤ" "吉野家" "です"]
+          result5 ["ヨ" "シ" "ノ" "ヤ" "吉野" "家" "です"]
+          result6 ["ヨシノヤ" "吉野" "吉野家" "家" "です"]
           factory TokenStream/DEFAULT_TOKEN_ATTRIBUTE_FACTORY]
-      (analysis/kuromoji-tokenize text nil true :extended factory) => result)))
+      (analysis/kuromoji-tokenize text nil false :normal factory) => result1
+      (analysis/kuromoji-tokenize text nil false :extended factory) => result2
+      (analysis/kuromoji-tokenize text nil false :search factory) => result3
+      (analysis/kuromoji-tokenize text nil true :normal factory) => result4
+      (analysis/kuromoji-tokenize text nil true :extended factory) => result5
+      (analysis/kuromoji-tokenize text nil true :search factory) => result6)))
 
 (binding [entry-analyzer (analysis/analyzer-mapping
                            (analysis/keyword-analyzer)
