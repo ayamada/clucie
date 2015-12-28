@@ -65,10 +65,13 @@
   (^org.apache.lucene.analysis.Analyzer []
    (JapaneseAnalyzer.))
   (^org.apache.lucene.analysis.Analyzer [user-dict mode stop-words stop-tags]
-   (let [mode (kuromoji-mode mode)]
+   (let [mode (kuromoji-mode mode)
+         stop-words (if (instance? CharArraySet stop-words)
+                      stop-words
+                      (CharArraySet. stop-words false))]
      (JapaneseAnalyzer. user-dict mode stop-words stop-tags))))
 
-;;; TODO: Support to many tokenize options
+;;; TODO: Support to many tokenize options for morphological analyses
 (defn- tokenize [^Tokenizer tokenizer ^String text]
   (.setReader tokenizer (StringReader. text))
   (let [^OffsetAttribute offset-attr (.addAttribute tokenizer OffsetAttribute)]
