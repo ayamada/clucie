@@ -7,6 +7,22 @@
             [clucie.t-fixture :as t-fixture])
   (:import [java.util UUID]))
 
+(facts "keyword analyzer with wildcard search"
+  (with-state-changes [(before :facts (t-common/prepare! t-common/keyword-analyzer nil t-fixture/entries-en-1))
+                       (after :facts (t-common/finish!))]
+    (fact "search exists entries"
+      (t-common/wildcard-search-entries t-fixture/entries-en-1-search-wildcard-1 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [0 0]))
+      (t-common/wildcard-search-entries t-fixture/entries-en-1-search-wildcard-2 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [0 0]))
+      (t-common/wildcard-search-entries t-fixture/entries-en-1-search-wildcard-3 10) => (t-common/results-is-valid? 0)
+      (t-common/wildcard-search-entries t-fixture/entries-en-1-search-wildcard-4 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [1 0])))
+    (fact "search new entries"
+      (let [entry-key "9999"
+            entry-doc "latest entry"
+            search-query "*est ent*"]
+        (t-common/wildcard-search-entries search-query 10) => (t-common/results-is-valid? 0)
+        (t-common/add-entry! entry-key entry-doc) => nil
+        (t-common/wildcard-search-entries search-query 10) => (t-common/results-is-valid? 1 entry-key)))))
+
 (facts "standard analyzer"
   (with-state-changes [(before :facts (t-common/prepare! t-common/standard-analyzer nil t-fixture/entries-en-1))
                        (after :facts (t-common/finish!))]
@@ -30,13 +46,33 @@
       (t-common/search-entries t-fixture/entries-en-1-search-1 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [0 0]))
       (t-common/search-entries t-fixture/entries-en-1-search-2 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [0 0]))
       (t-common/search-entries t-fixture/entries-en-1-search-3 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [1 0]))
-      (t-common/search-entries t-fixture/entries-en-1-search-4 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [1 0])))
+      (t-common/search-entries t-fixture/entries-en-1-search-4 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [1 0]))
+      (t-common/search-entries t-fixture/entries-en-1-search-5 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [2 0])))
     (fact "search new entries"
       (let [entry-key "9999"
-            entry-doc "latest entry"]
-        (t-common/search-entries entry-doc 10) => (t-common/results-is-valid? 1)
+            entry-doc "latest entry"
+            search-query "est ent"]
+        (t-common/search-entries search-query 10) => (t-common/results-is-valid? 1)
         (t-common/add-entry! entry-key entry-doc) => nil
-        (t-common/search-entries entry-doc 10) => (t-common/results-is-valid? 2 entry-key)))))
+        (t-common/search-entries search-query 10) => (t-common/results-is-valid? 2 entry-key)))))
+
+(facts "ngram analyzer with phrase search"
+  (with-state-changes [(before :facts (t-common/prepare! t-common/ngram-analyzer nil t-fixture/entries-en-1))
+                       (after :facts (t-common/finish!))]
+    (fact "search exists entries"
+      (t-common/phrase-search-entries "A" 10) => empty?
+      (t-common/phrase-search-entries t-fixture/entries-en-1-search-1 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [0 0]))
+      (t-common/phrase-search-entries t-fixture/entries-en-1-search-2 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [0 0]))
+      (t-common/phrase-search-entries t-fixture/entries-en-1-search-3 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [1 0]))
+      (t-common/phrase-search-entries t-fixture/entries-en-1-search-4 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-en-1 [1 0]))
+      (t-common/phrase-search-entries t-fixture/entries-en-1-search-5 10) => (t-common/results-is-valid? 0))
+    (fact "search new entries"
+      (let [entry-key "9999"
+            entry-doc "latest entry"
+            search-query "est ent"]
+        (t-common/phrase-search-entries search-query 10) => (t-common/results-is-valid? 0)
+        (t-common/add-entry! entry-key entry-doc) => nil
+        (t-common/phrase-search-entries search-query 10) => (t-common/results-is-valid? 1 entry-key)))))
 
 (facts "cjk analyzer"
   (with-state-changes [(before :facts (t-common/prepare! t-common/cjk-analyzer nil t-fixture/entries-ja-1))

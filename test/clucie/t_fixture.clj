@@ -11,6 +11,12 @@
 (def entries-en-1-search-2 "2013")
 (def entries-en-1-search-3 "hello")
 (def entries-en-1-search-4 "lo")
+(def entries-en-1-search-5 "ton")
+
+(def entries-en-1-search-wildcard-1 "20130819")
+(def entries-en-1-search-wildcard-2 "2013*")
+(def entries-en-1-search-wildcard-3 "hello")
+(def entries-en-1-search-wildcard-4 "*lo*")
 
 (def entries-ja-1
   [["11" "20130819"]
