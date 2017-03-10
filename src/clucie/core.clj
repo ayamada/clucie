@@ -112,15 +112,7 @@
                         (.build qb))
     (string? query-form) (case mode
                            :query (.createBooleanQuery builder (name current-key) query-form)
-                           ;; TODO: ここが想定通りに動いていない。
-                           ;; - PhraseQuery を生成してほしいのだが、何故か
-                           ;;   SynonymQuery が生成されてしまう。
-                           ;;   (「ab bc」の本文に対して「abc」のクエリを投げる
-                           ;;   場合、「abc」がPhraseQueryならマッチしないが、
-                           ;;   「abc」がSynonymQueryだとマッチしてしまう)
                            :phrase-query (.createPhraseQuery builder (name current-key) query-form)
-                           ;:phrase-query (let [q (.createPhraseQuery builder (name current-key) query-form)]
-                           ;                (prn :debug query-form (.. q (getClass) (getSimpleName))) q)
                            :wildcard-query (WildcardQuery. (Term. (name current-key) (str query-form)))
                            (throw (ex-info "invalid mode" {:mode mode})))))
 
