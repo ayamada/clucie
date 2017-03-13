@@ -38,7 +38,7 @@
         (t-common/add-entry! entry-key entry-doc) => nil
         (t-common/search-entries entry-doc 10) => (t-common/results-is-valid? 1 entry-key)))))
 
-(facts "ngram analyzer"
+(facts "ngram analyzer (en)"
   (with-state-changes [(before :facts (t-common/prepare! t-common/ngram-analyzer nil t-fixture/entries-en-1))
                        (after :facts (t-common/finish!))]
     (fact "search exists entries"
@@ -56,7 +56,25 @@
         (t-common/add-entry! entry-key entry-doc) => nil
         (t-common/search-entries search-query 10) => (t-common/results-is-valid? 2 entry-key)))))
 
-(facts "ngram analyzer with phrase search"
+(facts "ngram analyzer (ja)"
+  (with-state-changes [(before :facts (t-common/prepare! t-common/ngram-analyzer nil t-fixture/entries-ja-1))
+                       (after :facts (t-common/finish!))]
+    (fact "search exists entries"
+      (t-common/search-entries "あ" 10) => empty?
+      (t-common/search-entries t-fixture/entries-ja-1-search-1 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
+      (t-common/search-entries t-fixture/entries-ja-1-search-2 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
+      (t-common/search-entries t-fixture/entries-ja-1-search-3 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
+      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
+      (t-common/search-entries t-fixture/entries-ja-1-search-5 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [1 0])))
+    (fact "search new entries"
+      (let [entry-key "9999"
+            entry-doc "最新のエントリ"
+            search-query "新のエン"]
+        (t-common/search-entries search-query 10) => (t-common/results-is-valid? 0)
+        (t-common/add-entry! entry-key entry-doc) => nil
+        (t-common/search-entries search-query 10) => (t-common/results-is-valid? 1 entry-key)))))
+
+(facts "ngram analyzer with phrase search (en)"
   (with-state-changes [(before :facts (t-common/prepare! t-common/ngram-analyzer nil t-fixture/entries-en-1))
                        (after :facts (t-common/finish!))]
     (fact "search exists entries"
@@ -74,6 +92,24 @@
         (t-common/add-entry! entry-key entry-doc) => nil
         (t-common/phrase-search-entries search-query 10) => (t-common/results-is-valid? 1 entry-key)))))
 
+(facts "ngram analyzer with phrase search (ja)"
+  (with-state-changes [(before :facts (t-common/prepare! t-common/ngram-analyzer nil t-fixture/entries-ja-1))
+                       (after :facts (t-common/finish!))]
+    (fact "search exists entries"
+      (t-common/phrase-search-entries "あ" 10) => empty?
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-1 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-2 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-3 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-5 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [1 0])))
+    (fact "search new entries"
+      (let [entry-key "9999"
+            entry-doc "最新のエントリ"
+            search-query "新のエン"]
+        (t-common/phrase-search-entries search-query 10) => (t-common/results-is-valid? 0)
+        (t-common/add-entry! entry-key entry-doc) => nil
+        (t-common/phrase-search-entries search-query 10) => (t-common/results-is-valid? 1 entry-key)))))
+
 (facts "cjk analyzer"
   (with-state-changes [(before :facts (t-common/prepare! t-common/cjk-analyzer nil t-fixture/entries-ja-1))
                        (after :facts (t-common/finish!))]
@@ -81,13 +117,15 @@
       (t-common/search-entries t-fixture/entries-ja-1-search-1 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
       (t-common/search-entries t-fixture/entries-ja-1-search-2 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
       (t-common/search-entries t-fixture/entries-ja-1-search-3 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
-      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1))
+      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1)
+      (t-common/search-entries t-fixture/entries-ja-1-search-5 10) => (t-common/results-is-valid? 1))
     (fact "search new entries"
       (let [entry-key "9999"
-            entry-doc "latest entry"]
-        (t-common/search-entries entry-doc 10) => (t-common/results-is-valid? 0)
+            entry-doc "最新のエントリ"
+            search-query "新のエン"]
+        (t-common/search-entries search-query 10) => (t-common/results-is-valid? 0)
         (t-common/add-entry! entry-key entry-doc) => nil
-        (t-common/search-entries entry-doc 10) => (t-common/results-is-valid? 1 entry-key)))))
+        (t-common/search-entries search-query 10) => (t-common/results-is-valid? 1 entry-key)))))
 
 (facts "kuromoji analyzer"
   (with-state-changes [(before :facts (t-common/prepare! t-common/kuromoji-analyzer nil t-fixture/entries-ja-1))
@@ -96,10 +134,11 @@
       (t-common/search-entries t-fixture/entries-ja-1-search-1 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
       (t-common/search-entries t-fixture/entries-ja-1-search-2 10) => (t-common/results-is-valid? 1 (get-in t-fixture/entries-ja-1 [2 0]))
       (t-common/search-entries t-fixture/entries-ja-1-search-3 10) => (t-common/results-is-valid? 0)
-      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1))
+      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1)
+      (t-common/search-entries t-fixture/entries-ja-1-search-5 10) => (t-common/results-is-valid? 0))
     (fact "search new entries"
       (let [entry-key "9999"
-            entry-doc "latest entry"]
+            entry-doc "最新のエントリ"]
         (t-common/search-entries entry-doc 10) => (t-common/results-is-valid? 0)
         (t-common/add-entry! entry-key entry-doc) => nil
         (t-common/search-entries entry-doc 10) => (t-common/results-is-valid? 1 entry-key)))))
@@ -108,14 +147,39 @@
   (with-state-changes [(before :facts (t-common/prepare! (analysis/standard-analyzer t-fixture/stop-words-en) nil t-fixture/entries-en-1))
                        (after :facts (t-common/finish!))]
     (fact "standard analyzer"
-      (t-common/search-entries "Hello" 10) => (t-common/results-is-valid? 1)))
+      (t-common/search-entries "Heo" 10) => (t-common/results-is-valid? 0)))
+  (with-state-changes [(before :facts (t-common/prepare! (analysis/ngram-analyzer 2 8 t-fixture/stop-words-en) nil t-fixture/entries-en-1))
+                       (after :facts (t-common/finish!))]
+    (fact "ngram analyzer (en)"
+      (t-common/search-entries "Heo" 10) => (t-common/results-is-valid? 1)))
+  (with-state-changes [(before :facts (t-common/prepare! (analysis/ngram-analyzer 2 8 t-fixture/stop-words-ja) nil t-fixture/entries-ja-1))
+                       (after :facts (t-common/finish!))]
+    (fact "ngram analyzer (ja)"
+      (t-common/search-entries t-fixture/entries-ja-1-search-1 10) => (t-common/results-is-valid? 1)
+      (t-common/search-entries t-fixture/entries-ja-1-search-2 10) => (t-common/results-is-valid? 1)
+      (t-common/search-entries t-fixture/entries-ja-1-search-3 10) => (t-common/results-is-valid? 0)
+      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1)
+      (t-common/search-entries t-fixture/entries-ja-1-search-5 10) => (t-common/results-is-valid? 1)))
+  (with-state-changes [(before :facts (t-common/prepare! (analysis/ngram-analyzer 2 8 t-fixture/stop-words-en) nil t-fixture/entries-en-1))
+                       (after :facts (t-common/finish!))]
+    (fact "ngram analyzer with phrase search (en)"
+      (t-common/phrase-search-entries "Heo" 10) => (t-common/results-is-valid? 0)))
+  (with-state-changes [(before :facts (t-common/prepare! (analysis/ngram-analyzer 2 8 t-fixture/stop-words-ja) nil t-fixture/entries-ja-1))
+                       (after :facts (t-common/finish!))]
+    (fact "ngram analyzer with phrase search (ja)"
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-1 10) => (t-common/results-is-valid? 1)
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-2 10) => (t-common/results-is-valid? 1)
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-3 10) => (t-common/results-is-valid? 0)
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1)
+      (t-common/phrase-search-entries t-fixture/entries-ja-1-search-5 10) => (t-common/results-is-valid? 1)))
   (with-state-changes [(before :facts (t-common/prepare! (analysis/cjk-analyzer t-fixture/stop-words-ja) nil t-fixture/entries-ja-1))
                        (after :facts (t-common/finish!))]
     (fact "cjk analyzer"
       (t-common/search-entries t-fixture/entries-ja-1-search-1 10) => (t-common/results-is-valid? 1)
       (t-common/search-entries t-fixture/entries-ja-1-search-2 10) => (t-common/results-is-valid? 1)
       (t-common/search-entries t-fixture/entries-ja-1-search-3 10) => (t-common/results-is-valid? 0)
-      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1)))
+      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1)
+      (t-common/search-entries t-fixture/entries-ja-1-search-5 10) => (t-common/results-is-valid? 1)))
   (with-state-changes [(before :facts (let [ana (analysis/kuromoji-analyzer nil :search t-fixture/stop-words-ja #{})]
                                         (t-common/prepare! ana nil t-fixture/entries-ja-1)))
                        (after :facts (t-common/finish!))]
@@ -123,7 +187,8 @@
       (t-common/search-entries t-fixture/entries-ja-1-search-1 10) => (t-common/results-is-valid? 1)
       (t-common/search-entries t-fixture/entries-ja-1-search-2 10) => (t-common/results-is-valid? 1)
       (t-common/search-entries t-fixture/entries-ja-1-search-3 10) => (t-common/results-is-valid? 0)
-      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1))))
+      (t-common/search-entries t-fixture/entries-ja-1-search-4 10) => (t-common/results-is-valid? 1)
+      (t-common/search-entries t-fixture/entries-ja-1-search-5 10) => (t-common/results-is-valid? 0))))
 
 (facts "modify exists entries"
   (with-state-changes [(before :facts (t-common/prepare! t-common/standard-analyzer nil t-fixture/entries-en-1))

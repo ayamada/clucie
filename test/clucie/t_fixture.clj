@@ -28,7 +28,8 @@
 (def entries-ja-1-search-1 "東京都庁")
 (def entries-ja-1-search-2 "東京")
 (def entries-ja-1-search-3 "京都")
-(def entries-ja-1-search-4 "都庁")
+(def entries-ja-1-search-4 "都")
+(def entries-ja-1-search-5 "にち")
 
 (def tokenize-wo-optargs-text "東京都庁")
 (def tokenize-wo-optargs-result ["東京" "都庁"])
