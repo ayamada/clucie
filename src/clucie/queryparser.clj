@@ -9,9 +9,7 @@
 
 (defn ^Query parse-query
   [^Analyzer analyzer ^String default-field-name ^String query-string]
-  (let [^QueryParser qp (QueryParser. Version/LATEST
-                                      default-field-name
-                                      analyzer)
+  (let [^QueryParser qp (QueryParser. default-field-name analyzer)
         query (.parse qp query-string)]
     ;; dump query for debug
     (prn :debug (.toString query))

@@ -115,7 +115,7 @@
                            :query (.createBooleanQuery builder (name current-key) query-form)
                            :phrase-query (.createPhraseQuery builder (name current-key) query-form)
                            :wildcard-query (WildcardQuery. (Term. (name current-key) query-form))
-                           :qp-query (qp/parse-query (getAnalyzer builder)
+                           :qp-query (qp/parse-query (.getAnalyzer builder)
                                                      (name current-key)
                                                      query-form)
                            (throw (ex-info "invalid mode" {:mode mode})))))
