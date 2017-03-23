@@ -155,6 +155,8 @@
   (search* :wildcard-query index-store query-form max-results analyzer page results-per-page))
 
 (defn qp-search
-  "Search the supplied index with a classic-queryparser query string."
+  "Search the supplied index with a classic-queryparser query string.
+  NB: This may throw org.apache.lucene.queryparser.classic.ParseException
+  by invalid query string."
   [index-store query-form max-results & [analyzer page results-per-page]]
   (search* :qp-query index-store query-form max-results analyzer page results-per-page))
